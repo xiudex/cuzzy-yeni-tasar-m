@@ -1,0 +1,1168 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=5">
+<meta name="description" content="Cüzzy — kişisel finans yönetimi, yatırım takibi ve canlı piyasa">
+<meta name="theme-color" content="#007AFF">
+<meta name="referrer" content="strict-origin-when-cross-origin">
+<meta http-equiv="X-Content-Type-Options" content="nosniff">
+<meta http-equiv="X-Frame-Options" content="DENY">
+<meta http-equiv="Permissions-Policy" content="geolocation=(), microphone=(), camera=(), payment=(), usb=()">
+<meta http-equiv="Content-Security-Policy" content="
+  default-src 'self';
+  script-src 'self' 'unsafe-inline' https://www.gstatic.com https://cdn.jsdelivr.net;
+  style-src 'self' 'unsafe-inline' https://fonts.googleapis.com;
+  font-src 'self' https://fonts.gstatic.com data:;
+  img-src 'self' data: blob: https:;
+  connect-src 'self'
+    https://*.googleapis.com https://*.firebaseio.com wss://*.firebaseio.com
+    https://*.cloudfunctions.net https://api.emailjs.com
+    http://localhost:* http://127.0.0.1:*;
+  frame-src 'self' https://*.firebaseapp.com;
+  object-src 'none';
+  base-uri 'self';
+  form-action 'self';
+">
+<title>Cüzzy — Giriş</title>
+<script>
+  const savedTheme = localStorage.getItem('cuzzy_theme') || 'light';
+  document.documentElement.setAttribute('data-theme', savedTheme);
+</script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&amp;family=JetBrains+Mono:wght@400;500;600;700&amp;display=swap" rel="stylesheet">
+<script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
+<style>
+:root {
+  /* LIGHT THEME (Apple White + Apple Blue) */
+  --accent: #007AFF; 
+  --accent-rgb: 0, 122, 255;
+  --accent2: #0A84FF; 
+  --success: #34c759; 
+  --error: #ff3b30; 
+  --bg: #f5f5f7; 
+  --text: #1d1d1f; 
+  --text-soft: #86868b; 
+  --text-muted: #a1a1a6;
+  
+  --glass-bg: rgba(255, 255, 255, 0.65); 
+  --glass-border: rgba(0, 0, 0, 0.08);
+  --glass-border-strong: rgba(0, 0, 0, 0.15);
+  --input-bg: rgba(0, 0, 0, 0.04); 
+  --input-border: rgba(0, 0, 0, 0.1);
+  --input-focus-bg: rgba(255, 255, 255, 0.9);
+  --tab-bg: rgba(0, 0, 0, 0.06);
+  --tab-active-bg: #ffffff;
+  --tab-active-shadow: 0 4px 14px rgba(0,0,0,0.08);
+  --card-shadow: 0 30px 60px rgba(0, 0, 0, 0.08), inset 0 2px 0 rgba(255, 255, 255, 0.8);
+  
+  --fc-dark-bg: linear-gradient(135deg, rgba(0, 122, 255, 0.85), rgba(0, 80, 160, 0.85));
+  --fc-dark-border: rgba(255,255,255,0.25);
+  --fc-dark-text: #ffffff;
+  --fc-light-bg: rgba(255, 255, 255, 0.85);
+  --fc-light-border: rgba(0, 0, 0, 0.1);
+  --fc-light-text: #1d1d1f;
+  --fc-glass-bg: rgba(255, 255, 255, 0.5);
+  --icon-bg: rgba(0, 0, 0, 0.05);
+}
+
+[data-theme="dark"] {
+  /* DARK THEME (Apple Dark + Apple Blue) */
+  --accent: #0A84FF;
+  --accent-rgb: 10, 132, 255;
+  --accent2: #007AFF; 
+  --success: #34d399; 
+  --error: #f87171; 
+  --bg: #09090b; 
+  --text: #ffffff; 
+  --text-soft: #a1a1aa; 
+  --text-muted: #71717a;
+  
+  --glass-bg: rgba(15, 15, 18, 0.80); 
+  --glass-border: rgba(255, 255, 255, 0.15);
+  --glass-border-strong: rgba(255, 255, 255, 0.35);
+  --input-bg: rgba(0, 0, 0, 0.7); 
+  --input-border: rgba(255, 255, 255, 0.15);
+  --input-focus-bg: rgba(0, 0, 0, 0.9);
+  --tab-bg: rgba(0, 0, 0, 0.5);
+  --tab-active-bg: rgba(255,255,255,0.15);
+  --tab-active-shadow: 0 4px 14px rgba(0,0,0,0.4);
+  --card-shadow: 0 40px 80px rgba(0, 0, 0, 0.8), inset 0 2px 0 rgba(255, 255, 255, 0.15);
+  
+  --fc-dark-bg: linear-gradient(135deg, rgba(10, 132, 255, 0.9), rgba(0, 64, 128, 0.9));
+  --fc-dark-border: rgba(255,255,255,0.25);
+  --fc-dark-text: #ffffff;
+  --fc-light-bg: rgba(250, 250, 250, 0.95);
+  --fc-light-border: rgba(255, 255, 255, 0.6);
+  --fc-light-text: #18181b;
+  --fc-glass-bg: rgba(39, 39, 42, 0.85);
+  --icon-bg: rgba(255, 255, 255, 0.1);
+}
+
+*, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; -webkit-font-smoothing: antialiased; }
+html { font-size: 16px; }
+body {
+  font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+  background-color: var(--bg);
+  background-image: 
+    linear-gradient(var(--glass-border) 1px, transparent 1px),
+    linear-gradient(90deg, var(--glass-border) 1px, transparent 1px);
+  background-size: 40px 40px;
+  color: var(--text);
+  min-height: 100vh;
+  overflow: hidden;
+  letter-spacing: -0.01em;
+  line-height: 1.5;
+  transition: background-color 0.4s ease, color 0.4s ease;
+}
+
+/* ═════════ TEMA DEĞİŞTİRME BUTONU ═════════ */
+.theme-toggle {
+  position: absolute;
+  top: 24px; right: 24px;
+  width: 44px; height: 44px;
+  border-radius: 50%;
+  background: var(--glass-bg);
+  border: 1px solid var(--glass-border-strong);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  display: flex; align-items: center; justify-content: center;
+  color: var(--text);
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  z-index: 100;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+}
+.theme-toggle:hover { transform: scale(1.05); background: var(--input-focus-bg); }
+.theme-toggle svg { width: 20px; height: 20px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+.icon-sun { display: none; }
+.icon-moon { display: block; }
+[data-theme="dark"] .icon-sun { display: block; }
+[data-theme="dark"] .icon-moon { display: none; }
+
+.page-wrap {
+  position: relative;
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  overflow: hidden;
+}
+
+/* ═════════ EKRANI DOLDURAN DİNAMİK TANITIM KARTLARI ═════════ */
+.features-bg {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+  overflow: hidden;
+}
+
+.feat-wrap {
+  position: absolute;
+  top: 50%; left: 50%;
+  margin-left: -130px; margin-top: -100px;
+  will-change: transform, opacity;
+  animation-fill-mode: forwards; 
+  animation-timing-function: cubic-bezier(0.1, 0.9, 0.2, 1); 
+  animation-duration: 1.6s;
+  opacity: 0; 
+}
+
+.feat-card {
+  width: 260px;
+  padding: 20px;
+  border-radius: 20px;
+  box-shadow: 0 30px 50px rgba(0,0,0,0.2), inset 0 1px 0 rgba(255,255,255,0.4);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  will-change: transform;
+}
+
+/* Hafif 3D Sallanma Efektleri */
+@keyframes subtle3D_1 {
+  0% { transform: perspective(1000px) rotateX(1deg) rotateY(-1.5deg) translateY(0); }
+  100% { transform: perspective(1000px) rotateX(-1deg) rotateY(1.5deg) translateY(-8px); }
+}
+@keyframes subtle3D_2 {
+  0% { transform: perspective(1000px) rotateX(-1.5deg) rotateY(1deg) translateY(0); }
+  100% { transform: perspective(1000px) rotateX(1.5deg) rotateY(-1deg) translateY(-6px); }
+}
+@keyframes subtle3D_3 {
+  0% { transform: perspective(1000px) rotateX(1.5deg) rotateY(1.5deg) translateY(0); }
+  100% { transform: perspective(1000px) rotateX(-1.5deg) rotateY(-1.5deg) translateY(-7px); }
+}
+
+.fw-1 .feat-card { animation: subtle3D_1 6s infinite alternate ease-in-out; }
+.fw-2 .feat-card { animation: subtle3D_2 7s infinite alternate ease-in-out; }
+.fw-3 .feat-card { animation: subtle3D_3 6.5s infinite alternate ease-in-out; }
+.fw-4 .feat-card { animation: subtle3D_1 7.5s infinite alternate ease-in-out; }
+.fw-5 .feat-card { animation: subtle3D_2 6.2s infinite alternate ease-in-out; }
+.fw-center .feat-card { animation: subtle3D_3 8s infinite alternate ease-in-out; }
+
+.feat-card.dark { background: var(--fc-dark-bg); border: 1px solid var(--fc-dark-border); color: var(--fc-dark-text); }
+.feat-card.light { background: var(--fc-light-bg); border: 1px solid var(--fc-light-border); color: var(--fc-light-text); }
+.feat-card.glass { background: var(--fc-glass-bg); border: 1px solid var(--glass-border-strong); color: var(--text); }
+
+/* Fırlama Konumları */
+.fw-1 { animation-name: flyInTL; animation-delay: 0.1s; }
+@keyframes flyInTL { 0% { transform: translate(-80vw, -80vh); opacity: 0; } 100% { transform: translate(-320px, -260px); opacity: 1; } }
+.fw-2 { animation-name: flyInTR; animation-delay: 0.2s; }
+@keyframes flyInTR { 0% { transform: translate(80vw, -80vh); opacity: 0; } 100% { transform: translate(320px, -250px); opacity: 1; } }
+.fw-3 { animation-name: flyInBL; animation-delay: 0.3s; }
+@keyframes flyInBL { 0% { transform: translate(-80vw, 80vh); opacity: 0; } 100% { transform: translate(-310px, 280px); opacity: 1; } }
+.fw-4 { animation-name: flyInBR; animation-delay: 0.4s; }
+@keyframes flyInBR { 0% { transform: translate(80vw, 80vh); opacity: 0; } 100% { transform: translate(310px, 260px); opacity: 1; } }
+.fw-5 { animation-name: flyInTop; animation-delay: 0.5s; }
+@keyframes flyInTop { 0% { transform: translate(0, -80vh); opacity: 0; } 100% { transform: translate(0, -360px); opacity: 1; } }
+.fw-center { animation-name: popOutCenter; animation-delay: 0.6s; }
+@keyframes popOutCenter { 0% { transform: translate(0, 0) scale(0.5); opacity: 0; } 100% { transform: translate(-360px, 20px) scale(1); opacity: 1; } }
+
+.fw-glow { position: absolute; top: 50%; left: 50%; width: 400px; height: 400px; margin-left: -200px; margin-top: -200px; background: var(--accent); border-radius: 50%; filter: blur(100px); opacity: 0.3; animation: pulseGlow 8s infinite alternate ease-in-out; z-index: -1; }
+@keyframes pulseGlow { 0% { transform: scale(0.9); opacity: 0.2; } 100% { transform: scale(1.1); opacity: 0.4; } }
+
+.feat-eyebrow { font-size: 0.72rem; font-weight: 800; letter-spacing: 0.1em; margin-bottom: 12px; text-transform: uppercase; }
+.feat-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; font-weight: 600; font-size: 0.9rem; }
+.feat-progress-bg { height: 8px; border-radius: 4px; overflow: hidden; margin-top: 6px; }
+.feat-progress-fill { height: 100%; border-radius: 4px; }
+.feat-input-mock { padding: 10px; border-radius: 10px; font-size: 0.8rem; font-weight: 600; margin-bottom: 8px; }
+.feat-tx-item { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; }
+.feat-tx-icon { width: 32px; height: 32px; border-radius: 8px; background: var(--icon-bg); display: flex; align-items: center; justify-content: center;}
+.feat-tx-icon svg { width: 16px; height: 16px; stroke: currentColor; stroke-width: 2.5; }
+
+/* ═════════ ÖN PLAN: GİRİŞ FORMU (Mükemmel Okunabilirlik) ═════════ */
+.content-front {
+  position: relative;
+  z-index: 10;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+}
+
+.brand-header { display: flex; align-items: center; justify-content: center; margin-bottom: 32px; position: relative; }
+.brand-name { font-size: 2.6rem; font-weight: 800; letter-spacing: -0.04em; color: var(--text); text-shadow: 0 4px 20px rgba(0,0,0,0.2); transition: color 0.4s ease; }
+
+.auth-card {
+  background: var(--glass-bg);
+  backdrop-filter: blur(48px) saturate(200%);
+  -webkit-backdrop-filter: blur(48px) saturate(200%);
+  border: 1px solid var(--glass-border-strong);
+  border-radius: 28px;
+  padding: 40px 36px;
+  width: 440px;
+  max-width: 100%;
+  box-shadow: var(--card-shadow);
+  transition: background 0.4s ease, border-color 0.4s ease, box-shadow 0.4s ease;
+}
+
+/* SEKMELER - Taşmayı ve sızmayı önleyen kusursuz Flex/Math yapısı */
+.auth-tabs {
+  display: flex; /* Grid yerine Flex kullanarak boşluk sızmasını sıfırlıyoruz */
+  padding: 6px;
+  background: var(--tab-bg);
+  border-radius: 16px;
+  margin-bottom: 28px;
+  position: relative;
+  border: 1px solid var(--glass-border);
+  transition: background 0.4s ease;
+}
+.auth-tab {
+  flex: 1;
+  padding: 12px 16px;
+  border-radius: 12px;
+  border: none;
+  background: transparent;
+  color: var(--text-soft);
+  font-family: inherit;
+  font-size: 0.95rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: color 0.35s;
+  position: relative;
+  z-index: 2;
+  text-align: center;
+}
+.auth-tab.active { color: var(--text); }
+.auth-tabs::before {
+  content: '';
+  position: absolute;
+  top: 6px; left: 6px;
+  /* Genişlik: Toplam alanın tam yarısı eksi sağ/sol padding mesafesi (tam oturur) */
+  width: calc(50% - 6px); 
+  height: calc(100% - 12px);
+  background: var(--tab-active-bg);
+  border: 1px solid var(--glass-border-strong);
+  border-radius: 12px;
+  transition: transform 0.4s cubic-bezier(0.34, 1.4, 0.6, 1), background 0.4s ease;
+  z-index: 1;
+  box-shadow: var(--tab-active-shadow);
+}
+/* Sağa geçiş yaparken tam kendi genişliği kadar (%100) ilerler, taşma yapmaz */
+.auth-tabs.show-register::before { transform: translateX(100%); }
+
+/* ═════════ ACCORDION FORM ANİMASYONU ═════════ */
+.form-section {
+  display: grid;
+  grid-template-rows: 0fr;
+  opacity: 0;
+  transition: grid-template-rows 0.4s cubic-bezier(0.22, 1, 0.36, 1), opacity 0.3s ease, transform 0.4s cubic-bezier(0.22, 1, 0.36, 1);
+  transform: translateY(10px) scale(0.98);
+  pointer-events: none;
+}
+.form-section.active {
+  grid-template-rows: 1fr;
+  opacity: 1;
+  transform: translateY(0) scale(1);
+  pointer-events: auto;
+}
+.form-section-inner {
+  overflow: hidden;
+  min-height: 0;
+  padding: 4px; /* Focus gölgelerinin kesilmesini önler */
+  margin: -4px;
+}
+
+.field { display: flex; flex-direction: column; gap: 8px; margin-bottom: 20px; }
+.field label { font-size: 0.75rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.1em; color: var(--text-soft); margin-left: 4px; }
+.field input {
+  background: var(--input-bg);
+  border: 1px solid var(--input-border);
+  border-radius: 14px;
+  padding: 16px;
+  color: var(--text);
+  font-family: inherit;
+  font-size: 1rem;
+  font-weight: 500;
+  transition: all 0.3s ease;
+  width: 100%;
+  box-shadow: inset 0 2px 6px rgba(0,0,0,0.05);
+}
+.field input:focus {
+  outline: none;
+  border-color: var(--accent2);
+  background: var(--input-focus-bg);
+  box-shadow: 0 0 0 4px rgba(var(--accent-rgb), 0.15), inset 0 2px 6px rgba(0,0,0,0.05);
+}
+.field input::placeholder { color: var(--text-muted); }
+[data-theme="dark"] .field input { box-shadow: inset 0 4px 8px rgba(0,0,0,0.5); }
+[data-theme="dark"] .field input:focus { box-shadow: 0 0 0 4px rgba(var(--accent-rgb), 0.35), inset 0 4px 8px rgba(0,0,0,0.5); }
+
+.pw-wrapper { position: relative; }
+.pw-toggle {
+  position: absolute; right: 12px; top: 50%; transform: translateY(-50%); width: 40px; height: 40px;
+  border: none; background: transparent; color: var(--text-soft); cursor: pointer;
+  display: flex; align-items: center; justify-content: center; border-radius: 10px; transition: all 0.2s;
+}
+.pw-toggle:hover { color: var(--text); background: var(--icon-bg); }
+.pw-toggle svg { width: 22px; height: 22px; }
+.pw-toggle .eye-off { display: none; }
+.pw-toggle.active .eye-on { display: none; }
+.pw-toggle.active .eye-off { display: block; }
+
+/* Kırılmasız Ana Buton (Solid/Clean Gradient) */
+.fizzy-btn {
+  position: relative;
+  width: 100%; height: 58px;
+  border: none; border-radius: 14px;
+  background: linear-gradient(135deg, var(--accent), #0050A0); /* Apple mavisi degrade */
+  color: #ffffff; font-family: inherit; font-size: 1.05rem; font-weight: 800;
+  cursor: pointer; overflow: hidden;
+  /* background transition yerine sadece transform ve shadow geçişi (kırılmayı önler) */
+  transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.25s ease;
+  box-shadow: 0 10px 24px rgba(var(--accent-rgb), 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.3);
+  margin-top: 14px;
+}
+.fizzy-btn:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 14px 32px rgba(var(--accent-rgb), 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.4);
+}
+.fizzy-btn:active:not(:disabled) { transform: translateY(0); }
+.fizzy-btn:disabled { cursor: not-allowed; opacity: 0.7; }
+.btn-inner { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; }
+.btn-text, .btn-loading, .tick-mark { display: flex; align-items: center; justify-content: center; gap: 8px; position: absolute; transition: all 0.3s; }
+.btn-loading, .tick-mark { opacity: 0; transform: translateY(8px); }
+.fizzy-btn.loading .btn-text { opacity: 0; transform: translateY(-8px); }
+.fizzy-btn.loading .btn-loading { opacity: 1; transform: translateY(0); }
+.fizzy-btn.success .btn-text { opacity: 0; }
+.fizzy-btn.success .btn-loading { opacity: 0; }
+.fizzy-btn.success .tick-mark { opacity: 1; transform: translateY(0); }
+
+.spinner { width: 22px; height: 22px; border: 2.5px solid rgba(255,255,255,0.25); border-top-color: #fff; border-radius: 50%; animation: spin 0.8s linear infinite; }
+@keyframes spin { to { transform: rotate(360deg); } }
+
+.tick-mark svg { width: 26px; height: 26px; }
+.tick-circle { fill: none; stroke: #fff; stroke-width: 2.5; stroke-dasharray: 166; stroke-dashoffset: 166; animation: tick-circle 0.6s 0.1s forwards; }
+.tick-check { fill: none; stroke: #fff; stroke-width: 3.5; stroke-linecap: round; stroke-linejoin: round; stroke-dasharray: 48; stroke-dashoffset: 48; animation: tick-check 0.4s 0.5s forwards; }
+@keyframes tick-circle { to { stroke-dashoffset: 0; } }
+@keyframes tick-check { to { stroke-dashoffset: 0; } }
+
+.fizzy-btn.success { background: linear-gradient(135deg, var(--success), #10b981); box-shadow: 0 10px 24px rgba(52, 211, 153, 0.4); }
+
+.link-btn {
+  background: transparent; border: none; color: var(--text-soft); font-family: inherit;
+  font-size: 0.9rem; font-weight: 700; cursor: pointer; text-align: center; display: block;
+  margin: 24px auto 0; padding: 10px 18px; border-radius: 12px; transition: all 0.25s;
+}
+.link-btn:hover { color: var(--text); background: var(--icon-bg); }
+
+/* Code input & Result */
+.code-row { display: grid; grid-template-columns: repeat(6, 1fr); gap: 8px; margin: 14px 0; }
+.code-box { height: 60px; text-align: center; font-size: 1.5rem; font-weight: 700; border: 1px solid var(--input-border); border-radius: 14px; background: var(--input-bg); color: var(--text); font-family: 'JetBrains Mono', monospace; transition: all 0.2s; width: 100%; box-shadow: inset 0 2px 6px rgba(0,0,0,0.05); }
+.code-box:focus { outline: none; border-color: var(--accent2); box-shadow: 0 0 0 4px rgba(var(--accent-rgb), 0.15), inset 0 2px 6px rgba(0,0,0,0.05); }
+[data-theme="dark"] .code-box { border-color: var(--glass-border-strong); box-shadow: inset 0 4px 8px rgba(0,0,0,0.5); }
+[data-theme="dark"] .code-box:focus { border-color: rgba(255,255,255,0.8); box-shadow: 0 0 16px rgba(255,255,255,0.3); }
+.code-timer { text-align: center; font-size: 0.85rem; color: var(--text-soft); min-height: 20px; margin-bottom: 12px; font-weight: 700; }
+.result-box { display: none; padding: 16px; border-radius: 14px; border: 1px solid var(--glass-border); background: var(--input-bg); font-size: 0.95rem; margin: 16px 0; font-weight: 600; }
+
+/* Toast */
+.toast-container { position: fixed; top: 24px; left: 50%; transform: translateX(-50%); z-index: 9999; display: flex; flex-direction: column; gap: 8px; pointer-events: none; }
+.toast { padding: 16px 28px; border-radius: 16px; font-size: 0.95rem; font-weight: 700; background: rgba(25, 25, 25, 0.90); backdrop-filter: blur(24px) saturate(180%); color: #fff; border: 1px solid rgba(255,255,255,0.2); box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3); animation: toastIn 0.4s both; pointer-events: auto; }
+.toast.success { color: var(--success); border-color: rgba(var(--success-rgb), 0.5); }
+.toast.error { color: var(--error); border-color: rgba(var(--error-rgb), 0.5); }
+@keyframes toastIn { from { opacity: 0; transform: translateY(-20px) scale(0.95); } to { opacity: 1; transform: translateY(0) scale(1); } }
+
+/* Splash - Tamamen Emojisiz */
+.splash { position: fixed; inset: 0; background: var(--bg); display: flex; align-items: center; justify-content: center; flex-direction: column; gap: 20px; z-index: 9000; opacity: 1; transition: opacity 0.4s; }
+.splash.hidden { opacity: 0; pointer-events: none; }
+.splash-text { font-size: 2.8rem; font-weight: 800; letter-spacing: -0.04em; color: var(--text); animation: pulseSplash 1.4s infinite; text-shadow: 0 4px 20px rgba(0,0,0,0.1); }
+@keyframes pulseSplash { 0%, 100% { transform: scale(1); opacity: 0.8; } 50% { transform: scale(1.05); opacity: 1; } }
+
+/* Mobil Uyumluluk */
+@media (max-width: 1000px) {
+  .features-bg { display: none; } 
+}
+@media (max-width: 600px) {
+  .auth-card { padding: 32px 24px; border-radius: 24px; }
+  .brand-name { font-size: 2.2rem; }
+  .code-box { height: 50px; font-size: 1.3rem; }
+}
+@media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; } }
+</style>
+</head>
+<body>
+
+<button class="theme-toggle" onclick="toggleTheme()" title="Temayı Değiştir">
+  <svg class="icon-sun" viewBox="0 0 24 24"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
+  <svg class="icon-moon" viewBox="0 0 24 24"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+</button>
+
+<div class="splash" id="splash">
+  <div class="splash-text">Cüzzy</div>
+</div>
+
+<div class="toast-container" id="toastContainer"></div>
+
+<div class="features-bg">
+  <div class="fw-glow"></div>
+
+  <div class="feat-wrap fw-1">
+    <div class="feat-card dark">
+      <div class="feat-eyebrow" style="color:#d8b4fe">Canlı Piyasa</div>
+      <div class="feat-row">
+        <span style="display:flex; align-items:center; gap:6px"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg> BTC</span>
+        <span style="color:#34d399">₺3.42M</span>
+      </div>
+      <div class="feat-row">
+        <span style="display:flex; align-items:center; gap:6px"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg> USD/TRY</span>
+        <span style="color:#f87171">₺35.24</span>
+      </div>
+      <div class="feat-row">
+        <span style="display:flex; align-items:center; gap:6px"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg> ASELS</span>
+        <span style="color:#34d399">₺68.10</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="feat-wrap fw-2">
+    <div class="feat-card light">
+      <div class="feat-eyebrow" style="color:var(--text-muted)">Akıllı Bütçe</div>
+      <div class="feat-row"><span>Kullanılan</span><span style="color:var(--accent); font-weight:800">%80</span></div>
+      <div class="feat-progress-bg" style="background:var(--input-border)">
+        <div class="feat-progress-fill" style="width:80%; background:var(--accent)"></div>
+      </div>
+      <div style="font-size:0.75rem; color:var(--text-soft); margin-top:8px; text-align:right">Kalan: ₺4.500</div>
+    </div>
+  </div>
+
+  <div class="feat-wrap fw-3">
+    <div class="feat-card glass">
+      <div class="feat-eyebrow" style="color:var(--text-muted)">Son İşlemler</div>
+      <div class="feat-tx-item">
+        <div class="feat-tx-icon" style="color:#f87171"><svg viewBox="0 0 24 24"><line x1="7" y1="7" x2="17" y2="17"/><polyline points="17 7 17 17 7 17"/></svg></div>
+        <div style="flex:1"><div style="font-weight:700; font-size:0.85rem; color:var(--text)">Market</div><div style="font-size:0.7rem; color:var(--text-soft)">Bugün</div></div>
+        <div style="font-weight:700; color:#f87171">-₺1.250</div>
+      </div>
+      <div class="feat-tx-item">
+        <div class="feat-tx-icon" style="color:#34d399"><svg viewBox="0 0 24 24"><line x1="7" y1="17" x2="17" y2="7"/><polyline points="7 7 17 7 17 17"/></svg></div>
+        <div style="flex:1"><div style="font-weight:700; font-size:0.85rem; color:var(--text)">Maaş</div><div style="font-size:0.7rem; color:var(--text-soft)">Dün</div></div>
+        <div style="font-weight:700; color:#34d399">+₺45.000</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="feat-wrap fw-4">
+    <div class="feat-card light">
+      <div class="feat-eyebrow" style="color:var(--text-muted)">Hızlı İşlem</div>
+      <div class="feat-input-mock" style="background:var(--icon-bg); color:var(--text-soft); border:1px solid var(--input-border)">Tutar (₺)</div>
+      <div class="feat-input-mock" style="background:#10b981; color:#fff; text-align:center; font-weight:800; border-radius:12px; display:flex; justify-content:center; align-items:center; gap:6px">
+        <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="7" y1="17" x2="17" y2="7"/><polyline points="7 7 17 7 17 17"/></svg> Gelir Ekle
+      </div>
+    </div>
+  </div>
+
+  <div class="feat-wrap fw-5">
+    <div class="feat-card dark">
+      <div class="feat-eyebrow" style="color:#d8b4fe">Hedefler</div>
+      <div style="font-weight:700; font-size:1rem; margin-bottom:2px">Yeni Bilgisayar</div>
+      <div style="font-size:0.8rem; color:#a78bfa; margin-bottom:8px">₺45.000 / ₺60.000</div>
+      <div class="feat-progress-bg" style="background:rgba(255,255,255,0.2)">
+        <div class="feat-progress-fill" style="width:75%; background:#34d399"></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="feat-wrap fw-center">
+    <div class="feat-card dark" style="background:var(--fc-dark-bg); padding: 24px; width: 280px; box-shadow: 0 40px 80px rgba(0,0,0,0.6);">
+      <div class="feat-eyebrow" style="color:#d8b4fe; font-size:0.8rem">Net Bakiye</div>
+      <div style="font-family:'JetBrains Mono', monospace; font-size: 2.2rem; font-weight:800; color:#fff">₺142.500</div>
+      <div style="font-size:0.85rem; color:#34d399; margin-top:4px; font-weight:600">Tasarruf: %24</div>
+    </div>
+  </div>
+
+</div>
+
+<div class="page-wrap">
+  <div class="content-front">
+    
+    <div class="brand-header">
+      <div class="brand-name">Cüzzy</div>
+      <button type="button" id="authLangToggle" onclick="toggleAuthLang()" style="position:absolute;top:0;right:0;padding:6px 12px;border-radius:8px;border:1px solid var(--input-border);background:var(--glass-bg);color:var(--text-soft);font-size:0.75rem;font-weight:700;cursor:pointer">EN</button>
+    </div>
+
+    <div class="auth-card">
+      <div class="auth-tabs" id="authTabs">
+        <button class="auth-tab active" data-tab="login" onclick="switchTab('login')" data-i18n="login_tab">Giriş Yap</button>
+        <button class="auth-tab" data-tab="register" onclick="switchTab('register')" data-i18n="register_tab">Kayıt Ol</button>
+      </div>
+
+      <div class="form-section active" id="loginSection">
+        <div class="form-section-inner">
+          <div id="loginFormFields">
+            <div class="field">
+              <label data-i18n="email_label">E-posta</label>
+              <input type="email" id="loginEmail" placeholder="ornek@mail.com" autocomplete="email">
+            </div>
+            <div class="field">
+              <label data-i18n="password_label">Şifre</label>
+              <div class="pw-wrapper">
+                <input type="password" id="loginPassword" placeholder="••••••••" autocomplete="current-password">
+                <button type="button" class="pw-toggle" onclick="togglePwVisibility(this)" title="Göster/gizle">
+                  <svg class="eye-on" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+                  <svg class="eye-off" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/></svg>
+                </button>
+              </div>
+            </div>
+            <button class="fizzy-btn" id="loginBtn" onclick="handleLogin()">
+              <div class="btn-inner">
+                <span class="btn-text" data-i18n="login_btn">Giriş Yap</span>
+                <div class="btn-loading"><div class="spinner"></div><span data-i18n="logging_in">Giriş yapılıyor…</span></div>
+                <div class="tick-mark"><svg viewBox="0 0 52 52"><circle class="tick-circle" cx="26" cy="26" r="25"/><path class="tick-check" d="M14 27l7 7 16-16"/></svg></div>
+              </div>
+            </button>
+            <button class="link-btn" onclick="switchTab('forgot')" data-i18n="forgot_pw">Şifremi unuttum</button>
+          </div>
+
+          <div id="loginVerifyStep" style="display:none">
+            <p style="color:var(--text-soft);font-size:0.95rem;margin-bottom:20px;text-align:center;line-height:1.55">
+              <strong style="color:var(--text)" id="loginVerifyEmailDisplay">—</strong><span data-i18n="verify_code_sent_1"> adresine</span><br>
+              <span data-i18n="verify_code_sent_2">6 haneli kod gönderdik. </span><strong style="color:var(--text)" data-i18n="verify_code_sent_strong">Spam</strong><span data-i18n="verify_code_sent_3"> klasörünü de kontrol et.</span>
+            </p>
+            <div style="margin:20px 0">
+              <input type="text" id="loginCodeInput" maxlength="6" inputmode="numeric" autocomplete="one-time-code"
+                     placeholder="1 2 3 4 5 6"
+                     style="width:100%;box-sizing:border-box;font-family:'JetBrains Mono',monospace;font-size:1.4rem;letter-spacing:0.4em;text-align:center;padding:16px 8px;background:var(--input-bg);border:1px solid var(--input-border);border-radius:14px;color:var(--text);outline:none;box-shadow:inset 0 2px 6px rgba(0,0,0,0.05)"
+                     oninput="lcodeInput()" onkeydown="if(event.key==='Enter')confirmLoginCode()">
+            </div>
+            <div class="code-timer" id="loginVerifyTimer"></div>
+            <button class="fizzy-btn" id="loginVerifyBtn" onclick="confirmLoginCode()">
+              <div class="btn-inner">
+                <span class="btn-text" data-i18n="verify_btn">Doğrula</span>
+                <div class="btn-loading"><div class="spinner"></div><span data-i18n="verifying">Doğrulanıyor…</span></div>
+                <div class="tick-mark"><svg viewBox="0 0 52 52"><circle class="tick-circle" cx="26" cy="26" r="25"/><path class="tick-check" d="M14 27l7 7 16-16"/></svg></div>
+              </div>
+            </button>
+            <button class="link-btn" style="margin-top:16px" onclick="resendLoginCode()" data-i18n="resend_code">Kodu tekrar gönder</button>
+            <button class="link-btn" style="margin-top:6px" onclick="cancelLoginVerify()" data-i18n="back_to_login">← Girişe dön</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="form-section" id="registerSection">
+        <div class="form-section-inner">
+          <div id="registerDetails">
+            <div class="field">
+              <label data-i18n="name_label">İsim</label>
+              <input type="text" id="regUsername" placeholder="Adınız" autocomplete="name" maxlength="30">
+            </div>
+            <div class="field">
+              <label data-i18n="email_label">E-posta</label>
+              <input type="email" id="regEmail" placeholder="ornek@mail.com" autocomplete="email">
+            </div>
+            <div class="field">
+              <label data-i18n="password_label">Şifre</label>
+              <div class="pw-wrapper">
+                <input type="password" id="regPassword" placeholder="En az 8 karakter" autocomplete="new-password">
+                <button type="button" class="pw-toggle" onclick="togglePwVisibility(this)" title="Göster/gizle">
+                  <svg class="eye-on" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+                  <svg class="eye-off" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/></svg>
+                </button>
+              </div>
+            </div>
+            <button class="fizzy-btn" id="registerContinueBtn" onclick="handleRegister()">
+              <div class="btn-inner">
+                <span class="btn-text" data-i18n="create_account_btn">Hesap Oluştur</span>
+                <div class="btn-loading"><div class="spinner"></div><span data-i18n="creating">Oluşturuluyor…</span></div>
+                <div class="tick-mark"><svg viewBox="0 0 52 52"><circle class="tick-circle" cx="26" cy="26" r="25"/><path class="tick-check" d="M14 27l7 7 16-16"/></svg></div>
+              </div>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <div class="form-section" id="forgotSection">
+        <div class="form-section-inner">
+          <p style="color:var(--text-soft);font-size:0.95rem;margin-bottom:24px;text-align:center;line-height:1.55">
+            <span data-i18n="forgot_intro_prefix">E-postanı gir, </span><strong style="color:var(--text)" data-i18n="forgot_intro_strong">şifre sıfırlama bağlantısı</strong><span data-i18n="forgot_intro_suffix"> göndereceğiz.</span>
+          </p>
+          <div class="field">
+            <label data-i18n="email_label">E-posta</label>
+            <input type="email" id="forgotEmail" placeholder="ornek@mail.com" autocomplete="email">
+          </div>
+          <button class="fizzy-btn" id="forgotSendBtn" onclick="sendPasswordResetLink()">
+            <div class="btn-inner">
+              <span class="btn-text" data-i18n="send_link_btn">Bağlantı Gönder</span>
+              <div class="btn-loading"><div class="spinner"></div><span data-i18n="sending">Gönderiliyor…</span></div>
+              <div class="tick-mark"><svg viewBox="0 0 52 52"><circle class="tick-circle" cx="26" cy="26" r="25"/><path class="tick-check" d="M14 27l7 7 16-16"/></svg></div>
+            </div>
+          </button>
+          <div class="result-box" id="forgotResult"></div>
+          <p style="color:var(--text-muted);font-size:0.85rem;margin-top:20px;text-align:center;line-height:1.5">
+            <span data-i18n="forgot_spam_prefix">Mail gelmezse </span><strong style="color:var(--text)" data-i18n="forgot_spam_strong">spam/önemsiz</strong><span data-i18n="forgot_spam_suffix"> klasörünü kontrol et.</span>
+          </p>
+          <button class="link-btn" onclick="switchTab('login')" data-i18n="back_to_login">← Girişe dön</button>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<script>
+// ════════════════════════════════════════════════════════════════
+// TEMA DEĞİŞTİRİCİ SİSTEM
+// ════════════════════════════════════════════════════════════════
+function toggleTheme() {
+  const current = document.documentElement.getAttribute('data-theme');
+  const next = current === 'dark' ? 'light' : 'dark';
+  document.documentElement.setAttribute('data-theme', next);
+  localStorage.setItem('cuzzy_theme', next);
+}
+
+// ════════════════════════════════════════════════════════════════
+// DİL SİSTEMİ (bu sayfa app.html'in i18n sisteminden bağımsızdır)
+// ════════════════════════════════════════════════════════════════
+const AUTH_I18N = {
+  tr: {
+    login_tab: 'Giriş Yap', register_tab: 'Kayıt Ol',
+    email_label: 'E-posta', password_label: 'Şifre', name_label: 'İsim',
+    login_btn: 'Giriş Yap', logging_in: 'Giriş yapılıyor…', forgot_pw: 'Şifremi unuttum',
+    verify_btn: 'Doğrula', verifying: 'Doğrulanıyor…', resend_code: 'Kodu tekrar gönder', back_to_login: '← Girişe dön',
+    create_account_btn: 'Hesap Oluştur', creating: 'Oluşturuluyor…',
+    send_link_btn: 'Bağlantı Gönder', sending: 'Gönderiliyor…',
+    forgot_intro_prefix: 'E-postanı gir, ', forgot_intro_strong: 'şifre sıfırlama bağlantısı', forgot_intro_suffix: ' göndereceğiz.',
+    forgot_spam_prefix: 'Mail gelmezse ', forgot_spam_strong: 'spam/önemsiz', forgot_spam_suffix: ' klasörünü kontrol et.',
+    verify_code_sent_1: ' adresine', verify_code_sent_2: '6 haneli kod gönderdik. ', verify_code_sent_strong: 'Spam', verify_code_sent_3: ' klasörünü de kontrol et.',
+    toast_valid_name: 'Geçerli bir isim girin', toast_valid_email: 'Geçerli bir e-posta girin',
+    toast_pw_min8: 'Şifre en az 8 karakter olmalı', toast_account_created: 'Hesap oluşturuldu! Yönlendiriliyor...',
+    toast_email_registered: 'Bu e-posta zaten kayıtlı. Giriş yapın.', toast_pw_weak: 'Şifre çok zayıf',
+    toast_invalid_email: 'Geçersiz e-posta adresi', toast_register_error: 'Kayıt hatası: ',
+    toast_enter_email_pw: 'E-posta ve şifre girin', toast_login_success: 'Giriş başarılı! Yönlendiriliyor...',
+    toast_wrong_credentials: 'E-posta veya şifre yanlış', toast_too_many_attempts: 'Çok fazla deneme. 5-10 dakika bekleyin.',
+    toast_network_error: 'İnternet bağlantısı hatası', toast_login_error: 'Giriş hatası: ',
+    toast_enter_6digit: '6 haneli kodu girin', toast_code_not_found: 'Kod bulunamadı. Tekrar gönderin.',
+    toast_code_expired: 'Kodun süresi doldu. Tekrar gönderin.', toast_too_many_wrong: 'Çok fazla yanlış deneme',
+    toast_session_not_found: 'Oturum bulunamadı', toast_new_code_sent: 'Yeni kod gönderildi',
+    toast_send_failed: 'Gönderilemedi. Tekrar deneyin.', toast_enter_email: 'E-posta girin',
+    toast_link_sent: 'Bağlantı gönderildi'
+  },
+  en: {
+    login_tab: 'Log In', register_tab: 'Sign Up',
+    email_label: 'Email', password_label: 'Password', name_label: 'Name',
+    login_btn: 'Log In', logging_in: 'Logging in…', forgot_pw: 'Forgot password',
+    verify_btn: 'Verify', verifying: 'Verifying…', resend_code: 'Resend code', back_to_login: '← Back to login',
+    create_account_btn: 'Create Account', creating: 'Creating…',
+    send_link_btn: 'Send Link', sending: 'Sending…',
+    forgot_intro_prefix: 'Enter your email and we\'ll send you a ', forgot_intro_strong: 'password reset link', forgot_intro_suffix: '.',
+    forgot_spam_prefix: "If the email doesn't arrive, check your ", forgot_spam_strong: 'spam/junk', forgot_spam_suffix: ' folder.',
+    verify_code_sent_1: ': we sent a 6-digit code', verify_code_sent_2: 'Please also check your ', verify_code_sent_strong: 'Spam', verify_code_sent_3: ' folder.',
+    toast_valid_name: 'Enter a valid name', toast_valid_email: 'Enter a valid email',
+    toast_pw_min8: 'Password must be at least 8 characters', toast_account_created: 'Account created! Redirecting...',
+    toast_email_registered: 'This email is already registered. Please log in.', toast_pw_weak: 'Password is too weak',
+    toast_invalid_email: 'Invalid email address', toast_register_error: 'Registration error: ',
+    toast_enter_email_pw: 'Enter email and password', toast_login_success: 'Login successful! Redirecting...',
+    toast_wrong_credentials: 'Incorrect email or password', toast_too_many_attempts: 'Too many attempts. Wait 5-10 minutes.',
+    toast_network_error: 'Network connection error', toast_login_error: 'Login error: ',
+    toast_enter_6digit: 'Enter the 6-digit code', toast_code_not_found: 'Code not found. Resend it.',
+    toast_code_expired: 'Code has expired. Resend it.', toast_too_many_wrong: 'Too many incorrect attempts',
+    toast_session_not_found: 'Session not found', toast_new_code_sent: 'New code sent',
+    toast_send_failed: "Couldn't send. Try again.", toast_enter_email: 'Enter your email',
+    toast_link_sent: 'Link sent'
+  }
+};
+let authLang = localStorage.getItem('cuzzy_language') || 'tr';
+function at(key) { return (AUTH_I18N[authLang] && AUTH_I18N[authLang][key]) || AUTH_I18N.tr[key] || key; }
+function applyAuthI18n() {
+  document.documentElement.setAttribute('lang', authLang);
+  document.querySelectorAll('[data-i18n]').forEach(el => { el.textContent = at(el.getAttribute('data-i18n')); });
+  document.querySelectorAll('[data-i18n-placeholder]').forEach(el => { el.placeholder = at(el.getAttribute('data-i18n-placeholder')); });
+  const toggle = document.getElementById('authLangToggle');
+  if (toggle) toggle.textContent = authLang === 'tr' ? 'EN' : 'TR';
+}
+function toggleAuthLang() {
+  authLang = authLang === 'tr' ? 'en' : 'tr';
+  localStorage.setItem('cuzzy_language', authLang);
+  applyAuthI18n();
+}
+document.addEventListener('DOMContentLoaded', applyAuthI18n);
+
+// ════════════════════════════════════════════════════════════════
+// FIREBASE / EMAILJS YÜKLEME KONTROLÜ
+// ════════════════════════════════════════════════════════════════
+function showLoadError(missing) {
+  const isFile = window.location.protocol === 'file:';
+  document.getElementById('splash').classList.add('hidden');
+  document.body.insertAdjacentHTML('beforeend', `
+    <div style="position:fixed;inset:0;display:flex;align-items:center;justify-content:center;padding:20px;font-family:system-ui;background:var(--bg);color:var(--text);z-index:99999">
+      <div style="max-width:560px;background:var(--glass-bg);border:1px solid var(--glass-border-strong);border-radius:28px;padding:36px;backdrop-filter:blur(24px)">
+        <h1 style="font-size:1.8rem;font-weight:800;margin-bottom:12px">${missing} yüklenemedi</h1>
+        <p style="color:var(--text-soft);line-height:1.6;margin-bottom:20px;font-size:1rem">
+          ${isFile ? `Dosyayı çift tıklayarak (file://) açtın. Tarayıcılar güvenlik gereği file:// protokolünden CDN'e erişimi engeller.<br><br>
+          <strong style="color:var(--accent)">Çözüm:</strong>
+          <pre style="background:var(--input-bg);padding:14px 16px;border-radius:12px;font-family:'JetBrains Mono',monospace;font-size:0.9rem;margin:12px 0;color:var(--success);text-align:left;overflow-x:auto">cd "$(dirname "$(realpath index.html)")"<br>python3 -m http.server 8000</pre>
+          Sonra: <code style="background:var(--input-bg);padding:4px 10px;border-radius:8px;color:var(--accent)">http://localhost:8000/index.html</code>` : 'İnternet bağlantınızı veya tarayıcı eklentilerinizi (uBlock vb.) kontrol edin.'}
+        </p>
+        <button onclick="location.reload()" style="background:linear-gradient(135deg,var(--accent),#0050A0);border:none;color:#ffffff;padding:14px 28px;border-radius:14px;font-weight:800;font-size:1.05rem;cursor:pointer;font-family:inherit">↻ Yeniden dene</button>
+      </div>
+    </div>`);
+  throw new Error(missing + ' not loaded');
+}
+
+if (typeof firebase === 'undefined') showLoadError('Firebase');
+if (typeof firebase.firestore === 'undefined') showLoadError('Firebase Firestore');
+
+// ════════════════════════════════════════════════════════════════
+// FIREBASE CONFIG
+// ════════════════════════════════════════════════════════════════
+const _0x = ['QUl6YVN5QkUz', 'QmdFQ2NTMmZY', 'UmNZSzZub18t', 'Y3dyRjJOQy00bl9Z'];
+const _p = ['Y3V6enktYXBw', 'LTFjZTg3'];
+const firebaseConfig = {
+  apiKey: atob(_0x.join('')),
+  authDomain: atob(_p.join('')) + ".firebaseapp.com",
+  projectId: atob(_p.join('')),
+  storageBucket: atob(_p.join('')) + ".firebasestorage.app",
+  messagingSenderId: "572246140076",
+  appId: "1:572246140076:web:bdbe0a492db4599c206b09"
+};
+
+if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
+const auth = firebase.auth();
+const db = firebase.firestore();
+auth.languageCode = 'tr';
+auth.setPersistence(firebase.auth.Auth.Persistence.LOCAL).catch(e => console.warn(e));
+
+// ════════════════════════════════════════════════════════════════
+// EMAILJS CONFIG
+// ════════════════════════════════════════════════════════════════
+const _e = ['c2VydmljZV9pc2F1aHRs', 'dGVtcGxhdGVfeXZyZHptYQ==', 'LUtUZWFEUU5nOGVOelpqbjA='];
+const EMAILJS_CONFIG = { serviceId: atob(_e[0]), templateId: atob(_e[1]), publicKey: atob(_e[2]) };
+if (typeof emailjs !== 'undefined') emailjs.init(EMAILJS_CONFIG.publicKey);
+
+// ════════════════════════════════════════════════════════════════
+// STATE
+// ════════════════════════════════════════════════════════════════
+let pendingUser = null;
+let currentTab = 'login';
+let loginVerifyPending = false;
+let loginVerifyCode = null;
+let loginVerifyExpire = 0;
+let loginVerifyAttempts = 0;
+let loginVerifyTimerInt = null;
+let loginVerifyUser = null;
+
+// ════════════════════════════════════════════════════════════════
+// HELPERS
+// ════════════════════════════════════════════════════════════════
+function setFizzyState(btnId, state) {
+  const btn = document.getElementById(btnId);
+  if (!btn) return;
+  btn.classList.remove('loading', 'success');
+  btn.disabled = false;
+  if (state === 'loading') { btn.classList.add('loading'); btn.disabled = true; }
+  else if (state === 'success') { btn.classList.add('success'); btn.disabled = true; }
+}
+
+function toast(msg, type = 'success') {
+  const c = document.getElementById('toastContainer');
+  const t = document.createElement('div');
+  t.className = 'toast ' + type;
+  t.textContent = msg;
+  c.appendChild(t);
+  setTimeout(() => {
+    t.style.transition = 'opacity 0.3s, transform 0.3s';
+    t.style.opacity = '0';
+    t.style.transform = 'translateY(-8px)';
+    setTimeout(() => t.remove(), 300);
+  }, 2700);
+}
+
+function togglePwVisibility(btn) {
+  const input = btn.parentElement.querySelector('input');
+  if (!input) return;
+  const isPassword = input.type === 'password';
+  input.type = isPassword ? 'text' : 'password';
+  btn.classList.toggle('active', isPassword);
+}
+
+function switchTab(tab) {
+  currentTab = tab;
+  // Accordion (Grid 0fr to 1fr) efektini tetikle
+  document.querySelectorAll('.form-section').forEach(s => s.classList.remove('active'));
+  const tabsEl = document.getElementById('authTabs');
+
+  if (tab === 'login') {
+    document.getElementById('loginSection').classList.add('active');
+    tabsEl.classList.remove('show-register');
+    document.querySelectorAll('.auth-tab').forEach(t => t.classList.toggle('active', t.dataset.tab === 'login'));
+  } else if (tab === 'register') {
+    document.getElementById('registerSection').classList.add('active');
+    tabsEl.classList.add('show-register');
+    document.querySelectorAll('.auth-tab').forEach(t => t.classList.toggle('active', t.dataset.tab === 'register'));
+  } else if (tab === 'forgot') {
+    document.getElementById('forgotSection').classList.add('active');
+    const loginEmail = document.getElementById('loginEmail').value;
+    const forgotEmail = document.getElementById('forgotEmail');
+    if (loginEmail && !forgotEmail.value) forgotEmail.value = loginEmail;
+    const r = document.getElementById('forgotResult');
+    r.style.display = 'none';
+    r.innerHTML = '';
+    setFizzyState('forgotSendBtn', 'idle');
+  }
+}
+
+// ════════════════════════════════════════════════════════════════
+// REGISTER
+// ════════════════════════════════════════════════════════════════
+async function handleRegister() {
+  const name = document.getElementById('regUsername').value.trim();
+  const email = document.getElementById('regEmail').value.trim().toLowerCase();
+  const password = document.getElementById('regPassword').value;
+
+  if (!name || name.length < 2) return toast(at('toast_valid_name'), 'error');
+  if (!email || !/\S+@\S+\.\S+/.test(email)) return toast(at('toast_valid_email'), 'error');
+  if (!password || password.length < 8) return toast(at('toast_pw_min8'), 'error');
+
+  setFizzyState('registerContinueBtn', 'loading');
+
+  try {
+    const userCred = await auth.createUserWithEmailAndPassword(email, password);
+
+    await db.collection('users').doc(userCred.user.uid).set({
+      profile: { name },
+      email,
+      emailVerified: true,
+      createdAt: Date.now(),
+      transactions: [], recurring: [], goals: [], investments: [],
+      debts: [], subscriptions: [], notes: [], uploads: [], watchlist: [],
+      pin: '', theme: 'aurora', wallpaper: 'aurora',
+      plan: 'free', adsEnabled: true, autoLogout: 30,
+      monthlyBudget: 0, budgetWarningThreshold: 80,
+      notifications: { income: true, expense: true, goals: true },
+      tourCompleted: false
+    });
+
+    setFizzyState('registerContinueBtn', 'success');
+    toast(at('toast_account_created'), 'success');
+    setTimeout(() => { window.location.href = 'app.html'; }, 1000);
+
+  } catch (err) {
+    console.error('Register err:', err);
+    setFizzyState('registerContinueBtn', 'idle');
+
+    if (err.code === 'auth/email-already-in-use') {
+      toast(at('toast_email_registered'), 'error');
+      setTimeout(() => switchTab('login'), 1500);
+    } else if (err.code === 'auth/weak-password') {
+      toast(at('toast_pw_weak'), 'error');
+    } else if (err.code === 'auth/invalid-email') {
+      toast(at('toast_invalid_email'), 'error');
+    } else {
+      toast(at('toast_register_error') + (err.message || err.code), 'error');
+    }
+  }
+}
+
+// ════════════════════════════════════════════════════════════════
+// LOGIN
+// ════════════════════════════════════════════════════════════════
+async function handleLogin() {
+  const email = document.getElementById('loginEmail').value.trim().toLowerCase();
+  const password = document.getElementById('loginPassword').value;
+
+  if (!email || !password) return toast(at('toast_enter_email_pw'), 'error');
+
+  setFizzyState('loginBtn', 'loading');
+
+  try {
+    await auth.signInWithEmailAndPassword(email, password);
+    setFizzyState('loginBtn', 'success');
+    toast(at('toast_login_success'), 'success');
+    setTimeout(() => { window.location.href = 'app.html'; }, 700);
+
+  } catch (err) {
+    loginVerifyPending = false;
+    console.error('Login err:', err);
+    setFizzyState('loginBtn', 'idle');
+    if (err.code === 'auth/user-not-found' || err.code === 'auth/wrong-password' || err.code === 'auth/invalid-credential') {
+      toast(at('toast_wrong_credentials'), 'error');
+    } else if (err.code === 'auth/too-many-requests') {
+      toast(at('toast_too_many_attempts'), 'error');
+    } else if (err.code === 'auth/network-request-failed') {
+      toast(at('toast_network_error'), 'error');
+    } else {
+      toast(at('toast_login_error') + (err.message || err.code), 'error');
+    }
+  }
+}
+
+// ════════════════════════════════════════════════════════════════
+// LOGIN 2FA (Korunan eski mantık)
+// ════════════════════════════════════════════════════════════════
+function showLoginVerifyStep() {
+  document.getElementById('loginFormFields').style.display = 'none';
+  document.getElementById('loginVerifyStep').style.display = 'block';
+  setTimeout(() => document.getElementById('loginCodeInput')?.focus(), 300);
+}
+
+function hideLoginVerifyStep() {
+  document.getElementById('loginFormFields').style.display = 'block';
+  document.getElementById('loginVerifyStep').style.display = 'none';
+  clearLoginCode();
+  clearInterval(loginVerifyTimerInt);
+  document.getElementById('loginVerifyTimer').textContent = '';
+}
+
+async function sendLoginCode(user, email) {
+  if (typeof emailjs === 'undefined') {
+    console.error('EmailJS yüklenemedi');
+    return false;
+  }
+  const arr = new Uint32Array(1);
+  crypto.getRandomValues(arr);
+  loginVerifyCode = String(arr[0] % 900000 + 100000);
+  loginVerifyExpire = Date.now() + 5 * 60 * 1000;
+  loginVerifyAttempts = 0;
+
+  try {
+    await emailjs.send(EMAILJS_CONFIG.serviceId, EMAILJS_CONFIG.templateId, {
+      email: email || user.email,
+      to_email: email || user.email,
+      to_name: user.displayName || 'Kullanıcı',
+      verification_code: loginVerifyCode,
+      email_subject: 'Giriş Doğrulama',
+      email_message: 'Cüzzy hesabına giriş yapmak için aşağıdaki 6 haneli doğrulama kodunu gir:'
+    });
+    startLoginVerifyTimer();
+    return true;
+  } catch (e) {
+    console.error('Login code send err:', e);
+    loginVerifyCode = null;
+    return false;
+  }
+}
+
+function startLoginVerifyTimer() {
+  clearInterval(loginVerifyTimerInt);
+  const update = () => {
+    const rem = Math.max(0, Math.floor((loginVerifyExpire - Date.now()) / 1000));
+    const m = Math.floor(rem / 60);
+    const s = rem % 60;
+    const el = document.getElementById('loginVerifyTimer');
+    if (!el) return;
+    if (rem > 0) {
+      el.textContent = `Kod geçerlilik: ${m}:${s.toString().padStart(2, '0')}`;
+      el.style.color = rem < 60 ? 'var(--error)' : '';
+    } else {
+      el.textContent = 'Kodun süresi doldu';
+      el.style.color = 'var(--error)';
+    }
+  };
+  update();
+  loginVerifyTimerInt = setInterval(update, 1000);
+}
+
+function lcodeInput() {
+  const el = document.getElementById('loginCodeInput');
+  if (!el) return;
+  el.value = el.value.replace(/[^0-9]/g, '');
+  if (el.value.length === 6) setTimeout(confirmLoginCode, 300);
+}
+
+function getLoginCode() {
+  return (document.getElementById('loginCodeInput')?.value || '').trim();
+}
+
+function clearLoginCode() {
+  const el = document.getElementById('loginCodeInput');
+  if (el) { el.value = ''; el.focus(); }
+}
+
+async function confirmLoginCode() {
+  const code = getLoginCode();
+  if (code.length !== 6) return toast(at('toast_enter_6digit'), 'error');
+  if (!loginVerifyCode) return toast(at('toast_code_not_found'), 'error');
+  if (Date.now() > loginVerifyExpire) return toast(at('toast_code_expired'), 'error');
+  if (loginVerifyAttempts >= 5) return toast(at('toast_too_many_wrong'), 'error');
+
+  if (code === loginVerifyCode) {
+    setFizzyState('loginVerifyBtn', 'success');
+    clearInterval(loginVerifyTimerInt);
+    loginVerifyPending = false;
+    loginVerifyCode = null;
+    toast(at('toast_login_success'), 'success');
+    setTimeout(() => { window.location.href = 'app.html'; }, 1000);
+  } else {
+    loginVerifyAttempts++;
+    clearLoginCode();
+    const remaining = Math.max(0, 4 - loginVerifyAttempts);
+    toast(`Yanlış kod. ${remaining} hak kaldı.`, 'error');
+  }
+}
+
+async function resendLoginCode() {
+  if (!loginVerifyUser) return toast(at('toast_session_not_found'), 'error');
+  const ok = await sendLoginCode(loginVerifyUser, loginVerifyUser.email);
+  if (ok) {
+    clearLoginCode();
+    toast(at('toast_new_code_sent'), 'success');
+  } else {
+    toast(at('toast_send_failed'), 'error');
+  }
+}
+
+async function cancelLoginVerify() {
+  clearInterval(loginVerifyTimerInt);
+  loginVerifyPending = false;
+  loginVerifyCode = null;
+  loginVerifyUser = null;
+  try { await auth.signOut(); } catch (e) {}
+  hideLoginVerifyStep();
+  setFizzyState('loginBtn', 'idle');
+}
+
+// Enter eventleri
+document.getElementById('loginPassword').addEventListener('keydown', e => {
+  if (e.key === 'Enter') handleLogin();
+});
+document.getElementById('regPassword').addEventListener('keydown', e => {
+  if (e.key === 'Enter') handleRegister();
+});
+document.getElementById('forgotEmail').addEventListener('keydown', e => {
+  if (e.key === 'Enter') sendPasswordResetLink();
+});
+
+// ════════════════════════════════════════════════════════════════
+// PASSWORD RESET
+// ════════════════════════════════════════════════════════════════
+function mapResetError(err) {
+  const code = err?.code || '';
+  switch (code) {
+    case 'auth/user-not-found': return 'Kayıtlı hesap bulunamadı.';
+    case 'auth/invalid-email': return 'E-posta adresi geçersiz.';
+    case 'auth/too-many-requests': return 'Çok fazla deneme. Lütfen bekleyin.';
+    case 'auth/network-request-failed': return 'İnternet bağlantısı hatası.';
+    case 'auth/missing-email': return 'E-posta adresinizi girin.';
+    default: return 'Gönderilemedi. Tekrar deneyin.';
+  }
+}
+
+async function sendPasswordResetLink() {
+  const emailInput = document.getElementById('forgotEmail');
+  const email = emailInput.value.trim().toLowerCase();
+  const result = document.getElementById('forgotResult');
+
+  if (!email) { toast(at('toast_enter_email'), 'error'); emailInput.focus(); return; }
+  if (!/\S+@\S+\.\S+/.test(email)) return toast(at('toast_valid_email'), 'error');
+
+  setFizzyState('forgotSendBtn', 'loading');
+
+  try {
+    await auth.sendPasswordResetEmail(email);
+    setFizzyState('forgotSendBtn', 'success');
+    result.style.display = 'block';
+    result.style.background = 'rgba(52, 211, 153, 0.12)';
+    result.style.borderColor = 'rgba(52, 211, 153, 0.4)';
+    result.style.color = 'var(--success)';
+    result.innerHTML = `<strong>Bağlantı gönderildi</strong><br><span style="font-size:0.85rem;opacity:0.9;display:block;margin-top:6px"><strong>${email}</strong> adresini kontrol et.</span>`;
+    toast(at('toast_link_sent'), 'success');
+    setTimeout(() => setFizzyState('forgotSendBtn', 'idle'), 3000);
+  } catch (err) {
+    console.error('Reset err:', err);
+    setFizzyState('forgotSendBtn', 'idle');
+    const msg = mapResetError(err);
+    result.style.display = 'block';
+    result.style.background = 'rgba(248, 113, 113, 0.12)';
+    result.style.borderColor = 'rgba(248, 113, 113, 0.4)';
+    result.style.color = 'var(--error)';
+    result.innerHTML = `<strong>Hata</strong><br><span style="font-size:0.85rem;opacity:0.9">${msg}</span>`;
+    toast(msg, 'error');
+  }
+}
+
+// ════════════════════════════════════════════════════════════════
+// AUTO-REDIRECT EĞER ZATEN GİRİŞ YAPILMIŞSA
+// ════════════════════════════════════════════════════════════════
+let splashHideTimer = setTimeout(() => {
+  document.getElementById('splash').classList.add('hidden');
+}, 1200);
+
+auth.onAuthStateChanged(async (user) => {
+  if (user) {
+    if (loginVerifyPending) {
+      clearTimeout(splashHideTimer);
+      setTimeout(() => document.getElementById('splash').classList.add('hidden'), 200);
+      return;
+    }
+    try {
+      const userDoc = await db.collection('users').doc(user.uid).get();
+      if (userDoc.exists) {
+        clearTimeout(splashHideTimer);
+        window.location.href = 'app.html';
+        return;
+      }
+    } catch (e) {
+      console.warn('Auto-redirect check err:', e);
+    }
+  }
+  clearTimeout(splashHideTimer);
+  setTimeout(() => document.getElementById('splash').classList.add('hidden'), 200);
+});
+</script>
+
+</body>
+</html>
